@@ -80,7 +80,7 @@ function drk_start(){
 	if($query_select->rowCount() == 0) return;
 	while($row = $query_select->fetch()){
 		
-		$query_data = $db->prepare("SELECT * FROM `data` WHERE `address` = :address");
+		$query_data = $db->prepare("SELECT * FROM `data` WHERE `address` = :address AND `time` > UNIX_TIMESTAMP()-86400");
 		$query_data->bindParam(':address', $row['address'], PDO::PARAM_STR);
 		$query_data->execute();
 
