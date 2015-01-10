@@ -38,7 +38,7 @@ function drk_start(){
 
 	foreach ($p2p as $data){
 		if($block_id == $data["number"]){
-			$address = $label = 'P2Pool';
+			$address = 'P2Pool';
 			break;
 		} 
 	}

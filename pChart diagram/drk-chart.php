@@ -33,7 +33,7 @@ $p2p = json_decode(file_get_contents("http://eu.p2pool.pl:7903/recent_blocks"), 
 
 foreach ($p2p as $data){
 	if($block_id == $data["number"]){
-		$address = $label = 'P2Pool';
+		$address = 'P2Pool';
 		break;
 	} 
 }
