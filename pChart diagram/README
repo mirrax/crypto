@@ -1,1 +1,3 @@
 drk-chart-cli.php -> start php ./drk-chart-cli.php
+or
+su -s /bin/sh www-data -c "php ./drk-chart-cli.php"
