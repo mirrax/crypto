@@ -23,6 +23,7 @@ while(1){
 
 function drk_start(){
 	global $db, $darkcoin;
+	$drk_price = file_get_contents("http://midas-bank.com/price.php?name=DRK");
 	$hash_block = $darkcoin->getbestblockhash();
 	$info_block = $darkcoin->getblock($hash_block);
 	$tx = $info_block["tx"][0];
@@ -71,9 +72,16 @@ function drk_start(){
 
 	$k = 0;
 
-	$query_select = $db->prepare("SELECT * FROM `data`");
+	$query_select = $db->prepare("SELECT * FROM `data` WHERE `time` > UNIX_TIMESTAMP()-86400");
 	$query_select->execute();
 	$all_data = $query_select->rowCount();
+	
+	$query_select = $db->prepare("SELECT SUM(diff) FROM `data` WHERE `time` > UNIX_TIMESTAMP()-86400");
+	$query_select->execute();
+	$row = $query_select->fetch();
+	$diff_sum = $row['SUM(diff)'];
+	
+	$avg_diff = $diff_sum/$all_data;
 
 	$query_select = $db->prepare("SELECT * FROM `address`");
 	$query_select->execute();
@@ -84,50 +92,42 @@ function drk_start(){
 		$query_data->bindParam(':address', $row['address'], PDO::PARAM_STR);
 		$query_data->execute();
 
-		if($query_data->rowCount()/$all_data * 100 < 3){ $k = $k+$query_data->rowCount(); continue;}
+		if(($query_data->rowCount()/$all_data * 100 < 3) || empty($row['label'])){ $k = $k+$query_data->rowCount(); continue;}
 		
 		$arr_count[] = $query_data->rowCount();
 		
 		if(!empty($row['label']))	$arr_label[] = $row['label'];	else	$arr_label[] = $row['address'];
 	}
 
-	if(!empty($k)){ $arr_label[] = 'Other';  $arr_count[] = $k;}
+	if($k > 0){ $arr_label[] = 'Other';  $arr_count[] = $k; }
 
 	array_multisort($arr_count, SORT_DESC, $arr_label);
 	
-	/* Create and populate the pData object */ 
 	$MyData = new pData();    
 	$MyData->addPoints($arr_count ,"ScoreA");   
 	$MyData->setSerieDescription("ScoreA","Application A"); 
 
-
-	/* Define the absissa serie */ 
 	$MyData->addPoints($arr_label, "Labels"); 
 	$MyData->setAbscissa("Labels"); 
 
-	/* Create the pChart object */ 
-	$myPicture = new pImage(980,400,$MyData,TRUE);
+	$myPicture = new pImage(720,400,$MyData,TRUE);
 	$myPicture->Antialias = TRUE; 
 	 
-	 /* Draw a solid background */ 
 	$Settings = array("R"=>255, "G"=>255, "B"=>255); 
 	$myPicture->drawFilledRectangle(0,0,920,400,$Settings); 
-
-	/* Write the picture title */  
+  
 	$myPicture->setFontProperties(array("FontName"=>"./fonts/verdana.ttf","FontSize"=>14)); 
-	$myPicture->drawText(0,20,"At block: $last_block",array("R"=>0,"G"=>0,"B"=>0)); 
+	$myPicture->drawText(0,20,"At block: $last_block",array("R"=>0,"G"=>0,"B"=>0));
+	$myPicture->drawText(210,24,"Difficulty: $diff",array("R"=>0,"G"=>0,"B"=>0));
+	$myPicture->drawText(390,24,"Avg difficulty: ".round($avg_diff),array("R"=>0,"G"=>0,"B"=>0));
+	$myPicture->drawText(600,23,"Price: $drk_price$",array("R"=>0,"G"=>0,"B"=>0));
 	 
-	/* Create the pPie object */
 	$PieChart = new pPie($myPicture,$MyData);
 
-
-	/* Enable shadow computing */
 	$myPicture->setShadow(TRUE,array("X"=>2,"Y"=>2,"R"=>0,"G"=>0,"B"=>0,"Alpha"=>10)); 
 
-	/* Draw a splitted pie chart */
 	$myPicture->setFontProperties(array("FontName"=>"./fonts/tahoma.ttf","FontSize"=>10));
-	$PieChart->draw3DPie(490, 220,array("WriteValues"=>TRUE, "ValueR"=>0,"ValueG"=>0,"ValueB"=>0, "Radius"=>225, "DataGapAngle"=>4, "DataGapRadius"=>6, "DrawLabels"=>TRUE,"Border"=>TRUE)); 
+	$PieChart->draw3DPie(340, 220,array("WriteValues"=>TRUE, "ValueR"=>0,"ValueG"=>0,"ValueB"=>0, "Radius"=>225, "DataGapAngle"=>4, "DataGapRadius"=>6, "DrawLabels"=>TRUE,"Border"=>TRUE)); 
 
-	/* Render the picture (choose the best way) */ 
 	$myPicture->Render("example.png");
 }
