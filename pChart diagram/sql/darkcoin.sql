@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `address` (
 CREATE TABLE IF NOT EXISTS `data` (
   `id` int(11) NOT NULL,
   `bid` varchar(128) NOT NULL,
+  `diff` int(11) NOT NULL,
   `address` varchar(128) NOT NULL,
   `time` varchar(128) NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
