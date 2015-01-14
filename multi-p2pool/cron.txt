@@ -1,0 +1,7 @@
+0 * * * * root /usr/bin/curl --silent 'http://p2pool.pl/api.php?do=balance'>/dev/null 2>&1
+5 * * * * root /usr/bin/curl --silent 'http://p2pool.pl/api.php?do=tocryptsy'>/dev/null 2>&1
+10 * * * * root /usr/bin/curl --silent 'http://p2pool.pl/api.php?do=order_id'>/dev/null 2>&1
+20 * * * * root /usr/bin/curl --silent 'http://p2pool.pl/api.php?do=buy_vtc'>/dev/null 2>&1
+30 * * * * root /usr/bin/curl --silent 'http://p2pool.pl/api.php?do=check_buy'>/dev/null 2>&1
+40 * * * * root /usr/bin/curl --silent 'http://p2pool.pl/api.php?do=out'>/dev/null 2>&1
+50 * * * * root /usr/bin/curl --silent 'http://p2pool.pl/api.php?do=send'>/dev/null 2>&1
